@@ -8,8 +8,8 @@
 /*
 O trabalho possui 5 etapas obrigatórias descritas abaixo:
 1 - Estrutura do pacote: Implementar uma estrutura de pacotes contendo IP de origem, IP de destino, TTL e dados. O programa deve permitir criar e exibir pacotes; (feito)
-2 - Implementar uma tabela de roteamento contendo rede de destino, máscara e próximo salto. O programa deve permitir adicionar novas rotas e armazenar múltiplas rotas.
-3 - Implementar a lógica de receber pacotes, verificar o TTL, buscar rota e decidir próximo salto. O sistema deve descartar pacotes com TTL =0, indicar erros quando não houver rota e selecionar rota válida.
+2 - Implementar uma tabela de roteamento contendo rede de destino, máscara e próximo salto. O programa deve permitir adicionar novas rotas e armazenar múltiplas rotas. (feito)
+3 - Implementar a lógica de receber pacotes, verificar o TTL, buscar rota e decidir próximo salto. O sistema deve descartar pacotes com TTL =0, indicar erros quando não houver rota e selecionar rota válida. (feito)
 4 - Implementar uma tabela ARP. O sistema deve ser capaz de buscar endereço MAC a partir do IP e indicar erro caso não encontre.
 5 - O programa final deve:
     Criar pacotes
@@ -68,7 +68,7 @@ typedef struct{     // struct que define cada linha da tabela de roteamento
 }rota;
 
 typedef struct{     // struct da tabela de roteamento
-    rota rotas[100];
+    rota rotas[100];    // fiz como um vetor estático de tamanho 100 mas pode ser qlq outro número ou até mesmo um vetor dinamico (nesse caso precisaria alterar o adicionarRota)
     int qnt_rotas;
 }tabela_roteamento;
 
@@ -79,4 +79,30 @@ void adicionarRota(tabela_roteamento *tabela, rota rota){   // funcao para adici
 
 void inicializaTabela(tabela_roteamento *tabela){          // inicializa a qnt_rotas como 0  
     tabela->qnt_rotas = 0;  
+}
+
+int simulaRecebimentoPacote(tabela_roteamento tabela, pacote *pacote){
+    pacote->ttl--;
+    if (pacote->ttl == 0){
+        printf("ICMP Time Exceeded (Pacote Descartado)\n");
+        return -1;
+    }
+
+    uint32_t maior_mascara = 0;
+    int indice_rota_escolhida = -1;
+    for (int i = 0; i < tabela.qnt_rotas; i++){
+        if ((pacote->ip_destino & tabela.rotas[i].mascara) == tabela.rotas[i].destino){
+            if(ntohl(tabela.rotas[i].mascara) >= maior_mascara){    // usa o ntohl porque o inet_pton guarda os bits "de tras pra frente"
+                indice_rota_escolhida = i;
+                maior_mascara = tabela.rotas[i].mascara;
+            }
+        }
+    }
+
+    if (indice_rota_escolhida == -1){
+        printf("ICMP Destination Unreachable");
+        return -1;
+    }
+
+    return indice_rota_escolhida; // na main eu faço um if rota_escolhida == -1 ERRO
 }
