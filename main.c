@@ -5,6 +5,19 @@
 
 #define TAMANHO_MAXIMO 256
 
+/*
+O trabalho possui 5 etapas obrigatórias descritas abaixo:
+1 - Estrutura do pacote: Implementar uma estrutura de pacotes contendo IP de origem, IP de destino, TTL e dados. O programa deve permitir criar e exibir pacotes; (feito)
+2 - Implementar uma tabela de roteamento contendo rede de destino, máscara e próximo salto. O programa deve permitir adicionar novas rotas e armazenar múltiplas rotas.
+3 - Implementar a lógica de receber pacotes, verificar o TTL, buscar rota e decidir próximo salto. O sistema deve descartar pacotes com TTL =0, indicar erros quando não houver rota e selecionar rota válida.
+4 - Implementar uma tabela ARP. O sistema deve ser capaz de buscar endereço MAC a partir do IP e indicar erro caso não encontre.
+5 - O programa final deve:
+    Criar pacotes
+    Buscar rota
+    Resolver ARP
+    Exibir encaminhamento
+*/
+
 typedef struct{
     uint32_t ip_origem;
     uint32_t ip_destino;
@@ -48,3 +61,22 @@ void exibe_pacote(pacote p){
     printf("==================\n\n");
 }
 
+typedef struct{     // struct que define cada linha da tabela de roteamento
+    uint32_t destino;
+    uint32_t mascara;
+    uint32_t proximo_hop;
+}rota;
+
+typedef struct{     // struct da tabela de roteamento
+    rota rotas[100];
+    int qnt_rotas;
+}tabela_roteamento;
+
+void adicionarRota(tabela_roteamento *tabela, rota rota){   // funcao para adicionar rotas
+    tabela->rotas[tabela->qnt_rotas] = rota;
+    tabela->qnt_rotas++;
+}
+
+void inicializaTabela(tabela_roteamento *tabela){          // inicializa a qnt_rotas como 0  
+    tabela->qnt_rotas = 0;  
+}
